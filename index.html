@@ -246,11 +246,27 @@
         async function connectWallet() {
             if (window.ethereum) {
                 try {
+                    // 1. Request the accounts array from the wallet
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAddress = accounts[0];
+                    
+                    // 2. FIX: Extract the first wallet address from the array safely
+                    userAddress = accounts[0]; 
                     
                     provider = new ethers.BrowserProvider(window.ethereum);
                     signer = await provider.getSigner();
+                    
+                    // 3. Trim the address layout safely (e.g., 0x1234...abcd)
+                    document.getElementById('connectBtn').innerText = userAddress.substring(0,6) + '...' + userAddress.substring(38);
+                    
+                    // Query real-time data states
+                    fetchOracleMetrics();
+                } catch (error) {
+                    console.error("Cryptographic signature request aborted by operator:", error);
+                }
+            } else {
+                alert("Web3 extension not discovered. Please use the built-in Trust Wallet dApp Browser or install the desktop extension.");
+            }
+        }
                     
                     // Render slice formatting for layout visual presentation
                     document.getElementById('connectBtn').innerText = userAddress.substring(0,6) + '...' + userAddress.substring(38);
